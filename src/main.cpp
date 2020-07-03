@@ -4,13 +4,9 @@
 #include <set>
 #include <fstream>
 #include <string>
-#include <thread>
 #include <ctime>
-#include <cmath>
 #include <chrono>
-#include <sstream>
 #include <assert.h>
-
 #include "thread_pool/thread_pool.cpp"
 #include "utils.h"
 
@@ -87,10 +83,13 @@ ThreadPool *insert_with_thread_pool(vector<pair<int, int>> input, int threads, b
   if (threads < 8) {
     NUM_OF_THREADS = 8;
   }
+
   ThreadPool *thread_pool = new ThreadPool(NUM_OF_THREADS, lock_search);
   for (int i = 0; i < input.size(); i++) {
     thread_pool->submit_add(i % NUM_OF_THREADS, input[i].first, input[i].second);
   }
+  cout << "Submitted edges to load to core graph" << endl;
+
   auto start = chrono::steady_clock::now();
   thread_pool->start(8);
   thread_pool->stop();
@@ -147,7 +146,11 @@ int main(int argc, char *argv[]) {
     } else if (s.rfind("-core_graph=", 0) == 0) {
       string core_graph_filename = s.substr(12, s.length());
       cout << "Core graph: " << core_graph_filename << endl;
+
+      auto start = chrono::steady_clock::now();
       core_graph = read_input2(core_graph_filename);
+      auto finish = chrono::steady_clock::now();
+      cout << "Reading Core Graph from file: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
     } else if (s.rfind("-update_file=", 0) == 0) {
       string update_filename = s.substr(13, s.length());
       cout << "Update file: " << update_filename << endl;
