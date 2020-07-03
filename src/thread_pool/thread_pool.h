@@ -30,6 +30,7 @@ public:
   /** Public API */
   void submit_add(int thread_id, int src, int dest); // submit task to thread {thread_id} to insert edge {src, dest}
   void submit_delete(int thread_id, int src, int dest); // submit task to thread {thread_id} to delete edge {src, dest}
+  void submit_bulk(vector<pair<int, int>> *edges); // Submit a pointer to a vector of edges.
   void submit_read(int, int); // submit task to thread {thread_id} to read the neighbourhood of vertex {src}
   void start(int threads); // start the threads
   void stop(); // stop the threads
@@ -37,11 +38,13 @@ public:
 private:
   vector<thread> thread_pool;
   vector<queue<task>> tasks;
+  vector<pair<int, int>> *bulkUpdate;
   chrono::steady_clock::time_point s;
   chrono::steady_clock::time_point end;
   bool finished = false;
 
-  void execute(int);
+  void execute(int, int);
+  void executeBulk(int thread_id, int total_threads);
 };
 
 #endif //PCSR2_THREAD_POOL_H

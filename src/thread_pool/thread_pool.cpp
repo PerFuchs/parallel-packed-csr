@@ -19,10 +19,22 @@ ThreadPool::ThreadPool(const int NUM_OF_THREADS, bool lock_search, uint vertex_c
   pcsr = new PCSR(vertex_count + 1, vertex_count + 1, lock_search);
 }
 
+
+void ThreadPool::executeBulk(int thread_id, int total_threads) {
+  for (int i = thread_id; i < bulkUpdate->size(); i += total_threads) {
+    pcsr->add_edge((*bulkUpdate)[i].first, (*bulkUpdate)[i].second, 1);
+  }
+  cout << "Added bulk" << endl;
+}
+
 // Function executed by worker threads
 // Does insertions, deletions and reads on the PCSR
 // Finishes when finished is set to true and there are no outstanding tasks
-void ThreadPool::execute(int thread_id) {
+void ThreadPool::execute(int thread_id, int threads) {
+  if (bulkUpdate != NULL) {
+      executeBulk(thread_id, threads);
+  }
+
 //  cout << "Thread " << thread_id << " has " << tasks[thread_id].size() << " tasks" << endl;
   while (!finished || !tasks[thread_id].empty()) {
     if (!tasks[thread_id].empty()) {
@@ -61,7 +73,7 @@ void ThreadPool::start(int threads) {
   finished = false;
 
   for (int i = 0; i < threads; i++) {
-    thread_pool.push_back(thread(&ThreadPool::execute, this, i));
+    thread_pool.push_back(thread(&ThreadPool::execute, this, i, threads));
     // Pin thread to core
 //    cpu_set_t cpuset;
 //    CPU_ZERO(&cpuset);
@@ -81,6 +93,7 @@ void ThreadPool::start(int threads) {
 
 // Stops currently running worker threads without redistributing worker threads
 // start() can still be used after this is called to start a new set of threads operating on the same pcsr
+// Cleans bulk.
 void ThreadPool::stop() {
   finished = true;
   for (auto&& t : thread_pool) {
@@ -88,8 +101,13 @@ void ThreadPool::stop() {
 //    cout << "Done" << endl;
   }
   end = chrono::steady_clock::now();
+  bulkUpdate = NULL;
 //  cout << "Stop called microseconds after start: " << chrono::duration_cast<chrono::microseconds>(end - s).count() << endl;
   thread_pool.clear();
+}
+
+void ThreadPool::submit_bulk(vector<pair<int, int>> *edges) {
+    bulkUpdate = edges;
 }
 
 

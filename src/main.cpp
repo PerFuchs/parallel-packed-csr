@@ -78,20 +78,14 @@ vector<pair<int, int>> read_input2(string filename) {
 }
 
 // Loads core graph
-ThreadPool *insert_with_thread_pool(vector<pair<int, int>> input, int threads, bool lock_search, uint vertex_count) {
-  int NUM_OF_THREADS = threads;
-  if (threads < 8) {
-    NUM_OF_THREADS = 8;
-  }
-
-  ThreadPool *thread_pool = new ThreadPool(NUM_OF_THREADS, lock_search, vertex_count);
-  for (int i = 0; i < input.size(); i++) {
-    thread_pool->submit_add(i % NUM_OF_THREADS, input[i].first, input[i].second);
-  }
+ThreadPool *insert_with_thread_pool(vector<pair<int, int>> *input, int threads, bool lock_search, uint vertex_count) {
+  ThreadPool *thread_pool = new ThreadPool(threads, lock_search, vertex_count);
+  cout << "Submitting in bulk" << endl;
+  thread_pool->submit_bulk(input);
   cout << "Submitted edges to load to core graph" << endl;
 
   auto start = chrono::steady_clock::now();
-  thread_pool->start(8);
+  thread_pool->start(threads);
   thread_pool->stop();
   auto finish = chrono::steady_clock::now();
   cout << "Reading Core graph: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
@@ -164,10 +158,11 @@ int main(int argc, char *argv[]) {
   }
   assert(vertex_count);
 
+  cout << "Threads used: " << threads << endl;
   cout << "Core graph size: " << core_graph.size() << endl;
 //   sort(core_graph.begin(), core_graph.end());
   // Load core graph
-  ThreadPool *thread_pool = insert_with_thread_pool(core_graph, threads, lock_search, vertex_count);
+  ThreadPool *thread_pool = insert_with_thread_pool(&core_graph, threads, lock_search, vertex_count);
   // Do updates
   if (insert) {
     update_existing_graph(updates, thread_pool, threads, size);
