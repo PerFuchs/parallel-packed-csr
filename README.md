@@ -22,6 +22,16 @@ The data files included in the `data/` directory are the following:
 * `update_files/insertions.txt`: a list of 1 million edges, randomly sampled from a power law distribution, to be inserted.
 * `update_files/deletions.txt`: a list of 1 million edges in the core graph to be deleted.
 
+`shuffled_higgs.txt` was uploaded using `git lfs`. Steps to retrieve it:
+
+```
+ curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+ apt install git-lfs
+ cd <repo>
+ git lfs install
+ git lfs pull
+```
+
 # Running
 Run with `./pcsr2`
 
