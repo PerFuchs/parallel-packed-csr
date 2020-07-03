@@ -118,14 +118,8 @@ int main(int argc, char *argv[]) {
       updates = read_input2(update_filename);
     }
   }
-  if (core_graph.empty()) {
-    cout << "Using default core graph" << endl;
-    core_graph = read_input2("test_files/pgraph3.txt");
-  }
-  if (updates.empty()) {
-    cout << "Using default update graph" << endl;
-    updates = read_input2("test_files/pgraph3.txt");
-  }
+
+
   cout << "Core graph size: " << core_graph.size() << endl;
 //   sort(core_graph.begin(), core_graph.end());
   // Load core graph
