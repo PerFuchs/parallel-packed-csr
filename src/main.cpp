@@ -78,13 +78,13 @@ vector<pair<int, int>> read_input2(string filename) {
 }
 
 // Loads core graph
-ThreadPool *insert_with_thread_pool(vector<pair<int, int>> input, int threads, bool lock_search) {
+ThreadPool *insert_with_thread_pool(vector<pair<int, int>> input, int threads, bool lock_search, uint vertex_count) {
   int NUM_OF_THREADS = threads;
   if (threads < 8) {
     NUM_OF_THREADS = 8;
   }
 
-  ThreadPool *thread_pool = new ThreadPool(NUM_OF_THREADS, lock_search);
+  ThreadPool *thread_pool = new ThreadPool(NUM_OF_THREADS, lock_search, vertex_count);
   for (int i = 0; i < input.size(); i++) {
     thread_pool->submit_add(i % NUM_OF_THREADS, input[i].first, input[i].second);
   }
@@ -129,6 +129,8 @@ int main(int argc, char *argv[]) {
   int size = 1000000;
   bool lock_search = true;
   bool insert = true;
+  uint vertex_count = 0;
+
   vector<pair<int, int>> core_graph;
   vector<pair<int, int>> updates;
   for (int i = 1; i < argc; i++) {
@@ -155,14 +157,17 @@ int main(int argc, char *argv[]) {
       string update_filename = s.substr(13, s.length());
       cout << "Update file: " << update_filename << endl;
       updates = read_input2(update_filename);
+    } else if (s.rfind("-vertex_count=", 0) == 0) {
+        vertex_count = stoi(s.substr(14, s.length()));
+        cout << "Vertex count: " << vertex_count << endl;
     }
   }
-
+  assert(vertex_count);
 
   cout << "Core graph size: " << core_graph.size() << endl;
 //   sort(core_graph.begin(), core_graph.end());
   // Load core graph
-  ThreadPool *thread_pool = insert_with_thread_pool(core_graph, threads, lock_search);
+  ThreadPool *thread_pool = insert_with_thread_pool(core_graph, threads, lock_search, vertex_count);
   // Do updates
   if (insert) {
     update_existing_graph(updates, thread_pool, threads, size);

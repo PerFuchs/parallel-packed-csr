@@ -4,6 +4,7 @@
 
 #include <queue>
 #include <vector>
+#include <thread>
 #include "../pcsr/PCSR.cpp"
 using namespace std;
 #ifndef PCSR2_THREAD_POOL_H
@@ -22,7 +23,7 @@ class ThreadPool {
 public:
   PCSR* pcsr;
 
-  explicit ThreadPool(const int NUM_OF_THREADS, bool lock_search);
+  explicit ThreadPool(const int NUM_OF_THREADS, bool lock_search, uint vertex_count);
   ~ThreadPool() {
 
   }
