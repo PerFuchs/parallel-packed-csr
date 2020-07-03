@@ -53,13 +53,13 @@ ThreadPool *insert_with_thread_pool(vector<pair<int, int>> input, int threads, b
   }
   ThreadPool *thread_pool = new ThreadPool(NUM_OF_THREADS, lock_search);
   for (int i = 0; i < input.size(); i++) {
-    thread_pool->submit_add(i % 8, input[i].first, input[i].second);
+    thread_pool->submit_add(i % NUM_OF_THREADS, input[i].first, input[i].second);
   }
   auto start = chrono::steady_clock::now();
   thread_pool->start(8);
   thread_pool->stop();
   auto finish = chrono::steady_clock::now();
-//  cout << "Elapsed wall clock time: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
+  cout << "Reading Core graph: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
   return thread_pool;
 }
 
@@ -72,7 +72,7 @@ ThreadPool *update_existing_graph(vector<pair<int, int>> input, ThreadPool *thre
   thread_pool->start(threads);
   thread_pool->stop();
   auto finish = chrono::steady_clock::now();
-//  cout << "Elapsed wall clock time: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
+  cout << "Updating edges took (milliseconds): " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
   return thread_pool;
 }
 
@@ -86,7 +86,7 @@ void thread_pool_deletions(ThreadPool *thread_pool, vector<pair<int, int>> delet
   thread_pool->start(threads);
   thread_pool->stop();
   auto finish = chrono::steady_clock::now();
-//  cout << "Elapsed wall clock time: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
+  cout << "Deletions" << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -110,10 +110,11 @@ int main(int argc, char *argv[]) {
       insert = false;
     } else if (s.rfind("-core_graph=", 0) == 0) {
       string core_graph_filename = s.substr(12, s.length());
+      cout << "Core graph: " << core_graph_filename << endl;
       core_graph = read_input2(core_graph_filename);
     } else if (s.rfind("-update_file=", 0) == 0) {
       string update_filename = s.substr(13, s.length());
-      cout << update_filename << endl;
+      cout << "Update file: " << update_filename << endl;
       updates = read_input2(update_filename);
     }
   }
@@ -138,16 +139,16 @@ int main(int argc, char *argv[]) {
 
   // DEBUGGING CODE
   // Check that all edges are there and in sorted order
-//     for (int i = 0; i < core_graph.size(); i++) {
-//       if (!thread_pool->pcsr->edge_exists(core_graph[i].first, core_graph[i].second)) {
-//         cout << "Not there " << core_graph[i].first << " " << core_graph[i].second << endl;
-//       }
-//     }
-//        for (int i = 0; i < size; i++) {
-//          if (!thread_pool->pcsr->edge_exists(updates[i].first, updates[i].second)) {
-//            cout << "Not there" << endl;
-//          }
-//        }
+     for (int i = 0; i < core_graph.size(); i++) {
+       if (!thread_pool->pcsr->edge_exists(core_graph[i].first, core_graph[i].second)) {
+         cout << "Not there " << core_graph[i].first << " " << core_graph[i].second << endl;
+       }
+     }
+        for (int i = 0; i < size; i++) {
+          if (!thread_pool->pcsr->edge_exists(updates[i].first, updates[i].second)) {
+            cout << "Not there" << endl;
+          }
+        }
 //     if (!thread_pool->pcsr->is_sorted()) {
 //       cout << "Not sorted" << endl;
 //     }
