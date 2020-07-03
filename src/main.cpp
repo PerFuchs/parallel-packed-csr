@@ -9,10 +9,41 @@
 #include <cmath>
 #include <chrono>
 #include <sstream>
+#include <assert.h>
 
 #include "thread_pool/thread_pool.cpp"
+#include "utils.h"
 
 using namespace std;
+
+struct BinaryEdge {
+    uint32_t src;
+    uint32_t dst;
+};
+
+/*
+ * Reads an edgelist from a binary file which contains edges of the type of struct BinaryEdge.
+ */
+vector<pair<int, int>> read_binary(const string filename) {
+    cout << "Reading binary file: " << filename << endl;
+
+    FILE* file = fopen(filename.c_str(), "rb");
+    assert(file);
+
+    size_t fileSize = fsize(filename);
+    size_t numberOfEdges = fileSize / sizeof(BinaryEdge);
+
+    vector<pair<int, int>> edges;
+    edges.reserve(numberOfEdges);
+
+    BinaryEdge edge = {0, 0};
+    while(fread(&edge, sizeof(edge), 1, file) > 0) {
+        edges.emplace_back(make_pair(edge.src, edge.dst));
+    }
+
+    fclose(file);
+    return edges;
+}
 
 // Reads edge list with space separator
 vector<pair<int, int>> read_input(string filename) {
@@ -30,6 +61,11 @@ vector<pair<int, int>> read_input(string filename) {
 
 // Reads edge list with comma separator
 vector<pair<int, int>> read_input2(string filename) {
+
+  if (endsWith(filename, ".elog")) {
+      return read_binary(filename);
+  }
+
   ifstream f;
   string line;
   f.open(filename);
