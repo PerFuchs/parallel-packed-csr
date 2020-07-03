@@ -23,7 +23,7 @@ ThreadPool::ThreadPool(const int NUM_OF_THREADS, bool lock_search) {
 // Does insertions, deletions and reads on the PCSR
 // Finishes when finished is set to true and there are no outstanding tasks
 void ThreadPool::execute(int thread_id) {
-  cout << "Thread " << thread_id << " has " << tasks[thread_id].size() << " tasks" << endl;
+//  cout << "Thread " << thread_id << " has " << tasks[thread_id].size() << " tasks" << endl;
   while (!finished || !tasks[thread_id].empty()) {
     if (!tasks[thread_id].empty()) {
       task t = tasks[thread_id].front();
@@ -85,10 +85,10 @@ void ThreadPool::stop() {
   finished = true;
   for (auto&& t : thread_pool) {
     if (t.joinable()) t.join();
-    cout << "Done" << endl;
+//    cout << "Done" << endl;
   }
   end = chrono::steady_clock::now();
-  cout << "Elapsed wall clock time: " << chrono::duration_cast<chrono::microseconds>(end - s).count() << endl;
+//  cout << "Stop called microseconds after start: " << chrono::duration_cast<chrono::microseconds>(end - s).count() << endl;
   thread_pool.clear();
 }
 
