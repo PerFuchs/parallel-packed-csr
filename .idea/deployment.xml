@@ -2,6 +2,17 @@
 <project version="4">
   <component name="PublishConfigData">
     <serverData>
+      <paths name="Scyper12 (cb73e6ce-2820-4948-84cc-339364607d3c)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/tmp.ZvxkAVU0Bi" local="$PROJECT_DIR$/src" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/src/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/src/cmake-build-release" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
       <paths name="Scyper15 (d104ca22-7ceb-491c-90bc-68f33e00b056)">
         <serverdata>
           <mappings>
